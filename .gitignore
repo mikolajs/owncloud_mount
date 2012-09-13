@@ -3,6 +3,6 @@
 *.h
 *.c
 *.o
-.anjuta
-autom4te.cache
+
+owncloud_mount
 
