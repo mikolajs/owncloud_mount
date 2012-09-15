@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # apt-get install devfs2
 
 # dpkg-reconfigure devfs2
@@ -7,28 +8,36 @@
 # make nesesary directories
 
 
-if [ ! -e ~/.davfs2 ] 
+TEACHER=/home/$@
+
+ADDRESS="http://153.19.169.10:9090/remote.php/webdav/"
+
+if [ ! -e $TEACHER/.davfs2 ] 
 then 
-	mkdir ~/.davfs2
+	mkdir $TEACHER/.davfs2
 fi
 
-if [ ! -e  ~/.davfs2/secrets ]
+if [ ! -e  $TEACHER/.davfs2/secrets ]
 then
-	touch ~/.davfs2/secrets
+	touch $TEACHER/.davfs2/secrets
+	$ADDRESS > $TEACHER/.davfs2/secrets
+	chown -R $@ $TEACHER/.davfs2
+	chmod 664 $TEACHER/.davfs2/secrets
 fi
 
-if [ ! -e ~/$USER/owncloud ] 
+if [ ! -e $TEACHER/owncloud ] 
 then 
-	mkdir ~/$USER/owncloud
+	mkdir $TEACHER/owncloud
+	chown -R $@ $TEACHER/owncloud
 fi
 
 ETCCONFIG=./davfs2.conf # /etc/davfs2/davfs2.conf
-TMP=./temp
+TMP=./tmp.conf
 
 # create tmp file
-if [ ! -e $TEMP ] 
+if [ ! -e $TMP ] 
 then 
-	mkdir ~/.davfs2
+	touch $TMP
 fi
 
 # edit /etc/davfs2 comment line with ignore_home and uncomment secrets
@@ -51,7 +60,13 @@ mv $TMP $ETCCONFIG
 
 #add write in fstab
 FSTAB=./README           #/etc/fstab
-ADDRESS="http://153.19.169.10:9090/remote.php/webdav/"
+
 echo  "" >> $FSTAB
-echo "$ADDRESS /home/$USER/owncloud davfs user,noauto 0 0" >> $FSTAB
+echo "$ADDRESS /home/$@/owncloud davfs user,noauto 0 0" >> $FSTAB
+
+#copy owncloud_mount to usr/bin
+cp owncloud_mount /usr/bin/owncloud_mount
+chmod 555 /usr/bin/owncloud_mount
+
+ln -s /usr/bin/owncloud_mount $TEACHER/Pulpit/owncloud
 
